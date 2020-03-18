@@ -1,7 +1,7 @@
 import {
     $,
     isServer,
-    detectOS,
+    detectOS as _detectOS,
     getEventListenerOptions,
 } from './utils'
 
@@ -14,6 +14,18 @@ let initialClientY = 0
 let initialClientX = 0
 let unLockCallback: any = null
 let documentListenerAdded = false
+let optOS: Nullable<string> = null
+
+const detectOS = (ua?: string) => {
+    if (optOS != null) {
+        return {
+            ios: optOS === 'ios',
+            android: optOS === 'android'
+        }
+    } else {
+        return _detectOS(ua)
+    }
+}
 
 const lockedElements: HTMLElement[] = []
 const eventListenerOptions = getEventListenerOptions({ passive: false })
@@ -119,8 +131,12 @@ const checkTargetElement = (targetElement?: Nullable<HTMLElement>) => {
     )
 }
 
-const lock = (targetElement?: Nullable<HTMLElement>) => {
+const lock = (targetElement?: Nullable<HTMLElement>, opts?: { os?: string }) => {
     if (isServer()) return
+
+    if (opts && opts.os) {
+        optOS = opts.os
+    }
 
     checkTargetElement(targetElement)
 
